@@ -2,29 +2,22 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 public class EventManager : MonoBehaviour
 {
+    [Header("UI Components")]
     public GameObject eventCardPrefab;
     public Transform contentParent;
     public ScrollRect scrollRect;
-
     public GameObject loadingText;
+
+    [Header("Filter Controls")]
     [SerializeField] private Dropdown dropdownType;
     [SerializeField] private Dropdown dropdownCity;
     [SerializeField] private Dropdown dropdownDistance;
     [SerializeField] private InputField searchInput;
 
-    private List<EventItem> allEvents = new List<EventItem>();
-    private List<EventItem> currentList = new List<EventItem>();
-
-    private int currentPage = 0;
-    private int pageSize = 15;
-    private bool isLoading = false;
-    private bool isFinished = false;
-
-    // 詳細資料 UI（全部改為 Text）
+    [Header("Detail Panel")]
     public GameObject detailPanel;
     public Text detailTitle;
     public Text detailIntro;
@@ -33,67 +26,175 @@ public class EventManager : MonoBehaviour
     public Text detailType;
     public Button closeButton;
 
+    [Header("Debug")]
+    public Text debugText;
+
+    private List<EventItem> currentList = new List<EventItem>();
+    private int currentPage = 0;
+    private int pageSize = 15;
+    private bool isLoading = false;
+    private bool hasMorePages = true;
+
+    private string currentType = "全部";
+    private string currentCity = "全部";
+    private string currentSearch = "";
+
     void Start()
     {
-        // 假資料生成
-        for (int i = 1; i <= 100; i++)
-        {
-            allEvents.Add(new EventItem
-            {
-                title = $"活動 {i}",
-                type = "體驗",
-                address = "台北市 XX 路 XX 號",
-                phone = "0912-345-678",
-                distance = Random.Range(0.5f, 10f).ToString("0.0"),
-                city = "台北市",
-                introduce = "這是一段模擬的活動介紹文字"
-            });
-        }
-
-        detailPanel.SetActive(false); // 預設關閉
-        closeButton.onClick.AddListener(CloseDetail);
-        currentList = new List<EventItem>(allEvents);
-        LoadNextPage();
-        scrollRect.onValueChanged.AddListener(OnScrollValueChanged);
+        InitializeUI();
+        LoadFilterOptions();
+        LoadInitialData();
     }
 
-    private int GetKeywordScore(string title, string keyword)
+    void InitializeUI()
     {
-        keyword = keyword.ToLower();
-        title = title.ToLower();
+        detailPanel.SetActive(false);
+        closeButton.onClick.AddListener(CloseDetail);
+        scrollRect.onValueChanged.AddListener(OnScrollValueChanged);
+        searchInput.onEndEdit.AddListener(delegate { FilterEvents(); });
+        dropdownType.onValueChanged.AddListener(delegate { FilterEvents(); });
+        dropdownCity.onValueChanged.AddListener(delegate { FilterEvents(); });
+        dropdownDistance.onValueChanged.AddListener(delegate { FilterEvents(); });
+        UpdateDebugText("初始化完成");
+    }
 
-        if (title == keyword) return 100;
-        if (title.StartsWith(keyword)) return 80;
-        if (title.Contains(keyword)) return 50;
-        return 0;
+    void LoadFilterOptions()
+    {
+        UpdateDebugText("載入篩選選項中...");
+        StartCoroutine(ShopApiManager.Instance.GetFilterOptions(
+            (filters) => {
+                UpdateDropdown(dropdownCity, filters.cities);
+                UpdateDropdown(dropdownType, filters.types);
+                UpdateDropdown(dropdownDistance, filters.distances);
+                UpdateDebugText("篩選選項載入成功");
+            },
+            (error) => {
+                UpdateDebugText($"載入失敗: {error}");
+            }
+        ));
+    }
+
+    void UpdateDropdown(Dropdown dropdown, string[] options)
+    {
+        if (dropdown != null && options != null)
+        {
+            dropdown.ClearOptions();
+            dropdown.AddOptions(new List<string>(options));
+        }
+    }
+
+    void LoadInitialData()
+    {
+        currentPage = 0;
+        hasMorePages = true;
+        ClearAllCards();
+        currentList.Clear();
+        LoadNextPage();
     }
 
     public void FilterEvents()
     {
-        string type = dropdownType.value == 0 ? "全部" : dropdownType.options[dropdownType.value].text;
-        string city = dropdownCity.value == 0 ? "全部" : dropdownCity.options[dropdownCity.value].text;
-        string distance = dropdownDistance.value == 0 ? "全部" : dropdownDistance.options[dropdownDistance.value].text;
-        string keyword = searchInput.text.Trim();
-
-        Debug.Log($"查詢條件：{type}, {city}, {distance}, {keyword}");
-
-        ClearAllCards();
+        currentType = dropdownType.options[dropdownType.value].text;
+        currentCity = dropdownCity.options[dropdownCity.value].text;
+        currentSearch = searchInput.text.Trim();
         currentPage = 0;
-        isFinished = false;
-
-        currentList = allEvents
-            .FindAll(e =>
-                (type == "全部" || e.type == type) &&
-                (city == "全部" || e.city == city) &&
-                (distance == "全部" || e.distance == distance) &&
-                (string.IsNullOrEmpty(keyword) || e.title.Contains(keyword))
-            )
-            .OrderByDescending(e =>
-                !string.IsNullOrEmpty(keyword) ? GetKeywordScore(e.title, keyword) : 0
-            )
-            .ToList();
-
+        hasMorePages = true;
+        ClearAllCards();
+        currentList.Clear();
         LoadNextPage();
+    }
+
+    void LoadNextPage()
+    {
+        if (!hasMorePages || isLoading) return;
+        isLoading = true;
+        loadingText.SetActive(true);
+        StartCoroutine(ShopApiManager.Instance.GetShops(
+            currentPage, pageSize, currentType, currentCity, currentSearch,
+            (response) => {
+                foreach (var shop in response.shops)
+                {
+                    EventItem item = new EventItem
+                    {
+                        id = shop.id,
+                        title = shop.title,
+                        distance = shop.distance,
+                        introduce = shop.introduce,
+                        city = shop.city,
+                        phone = shop.phone,
+                        address = shop.address,
+                        type = shop.type
+                    };
+                    currentList.Add(item);
+                    AddEvent(item);
+                }
+                hasMorePages = response.hasNext;
+                currentPage++;
+                loadingText.SetActive(false);
+                isLoading = false;
+            },
+            (error) => {
+                UpdateDebugText($"載入錯誤: {error}");
+                loadingText.SetActive(false);
+                isLoading = false;
+            }
+        ));
+    }
+
+    void AddEvent(EventItem e)
+    {
+        GameObject card = Instantiate(eventCardPrefab, contentParent);
+        Transform titleT = card.transform.Find("TitleText");
+        if (titleT != null) titleT.GetComponent<Text>().text = e.title;
+
+        Transform distT = card.transform.Find("DistanceText");
+        if (distT != null) distT.GetComponent<Text>().text = $"距離你 {e.distance} 公里";
+
+        Transform typeT = card.transform.Find("TypeText");
+        if (typeT != null) typeT.GetComponent<Text>().text = e.type;
+
+        Transform cityT = card.transform.Find("LocationText");
+        if (cityT != null) cityT.GetComponent<Text>().text = e.city;
+
+        Button btn = card.GetComponent<Button>();
+        if (btn != null) btn.onClick.AddListener(() => ShowDetailPage(e));
+
+        card.GetComponent<Button>()?.onClick.AddListener(() => ShowDetailPage(e));
+    }
+
+    void ShowDetailPage(EventItem e)
+    {
+        StartCoroutine(ShopApiManager.Instance.GetShopDetail(
+            e.id,
+            (detail) => DisplayDetail(detail),
+            (error) => {
+                Debug.LogError(error);
+                DisplayDetail(e);
+            }
+        ));
+    }
+
+    void DisplayDetail(EventItem e)
+    {
+        detailTitle.text = e.title;
+        detailIntro.text = e.introduce;
+        detailPhone.text = $"電話：{e.phone}";
+        detailAddress.text = $"地址：{e.address}";
+        detailType.text = $"種類：{e.type}";
+        detailPanel.SetActive(true);
+    }
+
+    void CloseDetail()
+    {
+        detailPanel.SetActive(false);
+    }
+
+    void OnScrollValueChanged(Vector2 pos)
+    {
+        float contentY = contentParent.GetComponent<RectTransform>().anchoredPosition.y;
+        float viewHeight = scrollRect.viewport.rect.height;
+        float contentHeight = contentParent.GetComponent<RectTransform>().rect.height;
+        if (contentY + viewHeight >= contentHeight - 100f) LoadNextPage();
     }
 
     void ClearAllCards()
@@ -104,84 +205,13 @@ public class EventManager : MonoBehaviour
         }
     }
 
-    void OnScrollValueChanged(Vector2 scrollPos)
+    void UpdateDebugText(string msg)
     {
-        if (isLoading || isFinished) return;
-
-        float contentY = contentParent.GetComponent<RectTransform>().anchoredPosition.y;
-        float viewHeight = scrollRect.viewport.rect.height;
-        float contentHeight = contentParent.GetComponent<RectTransform>().rect.height;
-
-        if (contentY + viewHeight >= contentHeight - 100f)
-        {
-            StartCoroutine(LoadNextPageDelayed());
-        }
+        if (debugText != null) debugText.text = $"[{System.DateTime.Now:HH:mm:ss}] {msg}";
+        Debug.Log(msg);
     }
 
-    IEnumerator LoadNextPageDelayed()
-    {
-        isLoading = true;
-        loadingText.SetActive(true);
-
-        yield return new WaitForSeconds(1f);
-
-        int startIndex = currentPage * pageSize;
-        int endIndex = Mathf.Min(startIndex + pageSize, currentList.Count);
-
-        for (int i = startIndex; i < endIndex; i++)
-        {
-            AddEvent(currentList[i]);
-        }
-
-        currentPage++;
-        isLoading = false;
-        loadingText.SetActive(false);
-    }
-
-    void LoadNextPage()
-    {
-        StartCoroutine(LoadNextPageDelayed());
-    }
-
-    void AddEvent(EventItem e)
-    {
-        GameObject card = Instantiate(eventCardPrefab, contentParent);
-
-        Text titleText = card.transform.Find("TitleText")?.GetComponent<Text>();
-        Text distanceText = card.transform.Find("DistanceText")?.GetComponent<Text>();
-        Text typeText = card.transform.Find("TypeText")?.GetComponent<Text>();
-        Text locationText = card.transform.Find("LocationText")?.GetComponent<Text>();
-
-        if (titleText != null) titleText.text = e.title;
-        if (distanceText != null) distanceText.text = $"距離你 {e.distance} 公里";
-        if (typeText != null) typeText.text = e.type;
-        if (locationText != null) locationText.text = e.city;
-
-        Button btn = card.GetComponent<Button>();
-        if (btn != null)
-        {
-            btn.onClick.AddListener(() => ShowDetailPage(e));
-            Debug.Log($"✅ 按鈕已綁定：{e.title}");
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ EventCard 上缺少 Button 組件");
-        }
-    }
-
-    void ShowDetailPage(EventItem e)
-    {
-        Debug.Log("✔ 點擊卡片：" + e.title);
-        detailTitle.text = e.title;
-        detailIntro.text = e.introduce;
-        detailPhone.text = $"電話：{e.phone}";
-        detailAddress.text = $"地址：{e.address}";
-        detailType.text = $"種類：{e.type}";
-        detailPanel.SetActive(true);
-    }
-
-    public void CloseDetail()
-    {
-        detailPanel.SetActive(false);
-    }
+    public void RefreshData() => LoadInitialData();
+    public void SetSearchKeyword(string keyword) { searchInput.text = keyword; FilterEvents(); }
+    public void ClearFilters() { dropdownType.value = 0; dropdownCity.value = 0; dropdownDistance.value = 0; searchInput.text = ""; FilterEvents(); }
 }
