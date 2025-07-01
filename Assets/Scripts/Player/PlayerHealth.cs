@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
-    [Header("¥Í©R­È³]©w")]
+    [Header("ç”Ÿå‘½å€¼è¨­å®š")]
     public int maxHealth = 100;
     
     private int currentHealth;
     private bool isDead = false;
     
-    // ¨Æ¥ó©e°U
+    // äº‹ä»¶å§”è¨—
     public System.Action<int, int> OnHealthChanged; // (currentHealth, maxHealth)
     public System.Action OnPlayerDead;
     
@@ -16,10 +16,10 @@ public class PlayerHealth : MonoBehaviour
     {
         currentHealth = maxHealth;
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
-        Debug.Log($"ª±®a¥Í©R­Èªì©l¤Æ: {currentHealth}/{maxHealth}");
+        Debug.Log($"ç©å®¶ç”Ÿå‘½å€¼åˆå§‹åŒ–: {currentHealth}/{maxHealth}");
     }
     
-    // ¤½¶}¤èªk¨Ó³X°İ¨p¦³¦r¬q
+    // å…¬é–‹æ–¹æ³•ä¾†è¨ªå•ç§æœ‰å­—æ®µ
     public int GetCurrentHealth()
     {
         return currentHealth;
@@ -47,9 +47,9 @@ public class PlayerHealth : MonoBehaviour
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         
-        Debug.Log($"ª±®a¨ü¨ì {damage} ÂI¶Ë®`¡I³Ñ¾l¥Í©R­È: {currentHealth}/{maxHealth}");
+        Debug.Log($"ç©å®¶å—åˆ° {damage} é»å‚·å®³ï¼å‰©é¤˜ç”Ÿå‘½å€¼: {currentHealth}/{maxHealth}");
         
-        // Ä²µo¨Æ¥ó
+        // è§¸ç™¼äº‹ä»¶
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
         
         if (currentHealth <= 0 && !isDead)
@@ -69,7 +69,7 @@ public class PlayerHealth : MonoBehaviour
         int actualHeal = currentHealth - oldHealth;
         if (actualHeal > 0)
         {
-            Debug.Log($"ª±®aªvÀø¤F {actualHeal} ÂI¥Í©R­È¡I·í«e¥Í©R­È: {currentHealth}/{maxHealth}");
+            Debug.Log($"ç©å®¶æ²»ç™‚äº† {actualHeal} é»ç”Ÿå‘½å€¼ï¼ç•¶å‰ç”Ÿå‘½å€¼: {currentHealth}/{maxHealth}");
             OnHealthChanged?.Invoke(currentHealth, maxHealth);
         }
     }
@@ -86,7 +86,7 @@ public class PlayerHealth : MonoBehaviour
         if (isDead) return;
         
         currentHealth = maxHealth;
-        Debug.Log($"ª±®a§¹¥şªvÀø¡I¥Í©R­È: {currentHealth}/{maxHealth}");
+        Debug.Log($"ç©å®¶å®Œå…¨æ²»ç™‚ï¼ç”Ÿå‘½å€¼: {currentHealth}/{maxHealth}");
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
     
@@ -97,61 +97,61 @@ public class PlayerHealth : MonoBehaviour
         isDead = false;
         currentHealth = reviveHealth < 0 ? maxHealth / 2 : Mathf.Clamp(reviveHealth, 1, maxHealth);
         
-        Debug.Log($"ª±®a´_¬¡¡I¥Í©R­È: {currentHealth}/{maxHealth}");
+        Debug.Log($"ç©å®¶å¾©æ´»ï¼ç”Ÿå‘½å€¼: {currentHealth}/{maxHealth}");
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
     
     private void Die()
     {
         isDead = true;
-        Debug.Log("ª±®a¦º¤`¡I");
+        Debug.Log("ç©å®¶æ­»äº¡ï¼");
         OnPlayerDead?.Invoke();
         
-        // ¥i¥H¦b³o¸Ì²K¥[¦º¤`®ÄªG
-        // ¨Ò¦p¡G¼½©ñ¦º¤`°Êµe¡B°±¤î²¾°Êµ¥
+        // å¯ä»¥åœ¨é€™è£¡æ·»åŠ æ­»äº¡æ•ˆæœ
+        // ä¾‹å¦‚ï¼šæ’­æ”¾æ­»äº¡å‹•ç•«ã€åœæ­¢ç§»å‹•ç­‰
     }
     
-    // Debug¥\¯à
+    // DebugåŠŸèƒ½
     [System.Diagnostics.Conditional("UNITY_EDITOR")]
     public void DebugSetHealth(int health)
     {
         currentHealth = Mathf.Clamp(health, 0, maxHealth);
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
-        Debug.Log($"Debug: ª±®a¥Í©R­È³]©w¬° {currentHealth}/{maxHealth}");
+        Debug.Log($"Debug: ç©å®¶ç”Ÿå‘½å€¼è¨­å®šç‚º {currentHealth}/{maxHealth}");
     }
     
     void OnGUI()
     {
-        // Â²³æªº¦å¶q±øUI
+        // ç°¡å–®çš„è¡€é‡æ¢UI
         if (!isDead)
         {
             float barWidth = 200f;
             float barHeight = 20f;
             float healthPercentage = GetHealthPercentage();
             
-            // ­I´º
+            // èƒŒæ™¯
             GUI.color = Color.black;
             GUI.DrawTexture(new Rect(10, 10, barWidth + 4, barHeight + 4), Texture2D.whiteTexture);
             
-            // ¦å¶q±ø­I´º
+            // è¡€é‡æ¢èƒŒæ™¯
             GUI.color = Color.red;
             GUI.DrawTexture(new Rect(12, 12, barWidth, barHeight), Texture2D.whiteTexture);
             
-            // ·í«e¦å¶q
+            // ç•¶å‰è¡€é‡
             GUI.color = Color.green;
             GUI.DrawTexture(new Rect(12, 12, barWidth * healthPercentage, barHeight), Texture2D.whiteTexture);
             
-            // ¦å¶q¤å¦r
+            // è¡€é‡æ–‡å­—
             GUI.color = Color.white;
             GUI.Label(new Rect(15, 12, barWidth, barHeight), $"HP: {currentHealth}/{maxHealth}");
         }
         else
         {
-            // ¦º¤`´£¥Ü
+            // æ­»äº¡æç¤º
             GUI.color = Color.red;
-            GUI.Label(new Rect(10, 10, 200, 30), "ª±®a¤w¦º¤`¡I");
+            GUI.Label(new Rect(10, 10, 200, 30), "ç©å®¶å·²æ­»äº¡ï¼");
         }
         
-        GUI.color = Color.white; // ­«¸mÃC¦â
+        GUI.color = Color.white; // é‡ç½®é¡è‰²
     }
 }

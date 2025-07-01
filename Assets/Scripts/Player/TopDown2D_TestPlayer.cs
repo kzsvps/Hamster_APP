@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class TopDown2D_TestPlayer : MonoBehaviour
 {
-    [Header("²¾°Ê³]©w")]
+    [Header("ç§»å‹•è¨­å®š")]
     public float moveSpeed = 5f;
     
     [Header("Debug")]
@@ -12,7 +12,7 @@ public class TopDown2D_TestPlayer : MonoBehaviour
     private Vector2 movement;
     private PlayerHealth playerHealth;
     
-    // µøÄ±²Õ¥ó
+    // è¦–è¦ºçµ„ä»¶
     private SpriteRenderer mainSprite;
     private SpriteRenderer eyesSprite;
     private GameObject eyesObject;
@@ -29,26 +29,26 @@ public class TopDown2D_TestPlayer : MonoBehaviour
         
         playerHealth = GetComponent<PlayerHealth>();
         
-        // ³Ğ«Øª±®aµøÄ±®ÄªG
+        // å‰µå»ºç©å®¶è¦–è¦ºæ•ˆæœ
         CreatePlayerVisuals();
         
-        Debug.Log("ª±®aªì©l¤Æ§¹¦¨¡I");
+        Debug.Log("ç©å®¶åˆå§‹åŒ–å®Œæˆï¼");
     }
     
     void CreatePlayerVisuals()
     {
-        // ¥DÅé (ÂÅ¦â¶ê§Î)
+        // ä¸»é«” (è—è‰²åœ“å½¢)
         mainSprite = GetComponent<SpriteRenderer>();
         if (mainSprite == null)
             mainSprite = gameObject.AddComponent<SpriteRenderer>();
             
-        // ³Ğ«Ø¶ê§Î¥DÅé
+        // å‰µå»ºåœ“å½¢ä¸»é«”
         Texture2D circleTexture = CreateCircleTexture(64, Color.blue);
         Sprite circleSprite = Sprite.Create(circleTexture, new Rect(0, 0, 64, 64), new Vector2(0.5f, 0.5f), 64);
         mainSprite.sprite = circleSprite;
         mainSprite.sortingOrder = 1;
         
-        // ³Ğ«Ø²´·ú
+        // å‰µå»ºçœ¼ç›
         eyesObject = new GameObject("PlayerEyes");
         eyesObject.transform.SetParent(transform);
         eyesObject.transform.localPosition = Vector3.zero;
@@ -59,7 +59,7 @@ public class TopDown2D_TestPlayer : MonoBehaviour
         eyesSprite.sprite = eyesSpriteAsset;
         eyesSprite.sortingOrder = 2;
         
-        // ²K¥[¸I¼²Åé
+        // æ·»åŠ ç¢°æ’é«”
         CircleCollider2D collider = GetComponent<CircleCollider2D>();
         if (collider == null)
         {
@@ -84,12 +84,12 @@ public class TopDown2D_TestPlayer : MonoBehaviour
                 
                 if (distance <= radius)
                 {
-                    // ¥D¦â
+                    // ä¸»è‰²
                     pixels[y * size + x] = color;
                 }
                 else if (distance <= radius + 2)
                 {
-                    // Ãä®Ø
+                    // é‚Šæ¡†
                     pixels[y * size + x] = Color.white;
                 }
                 else
@@ -109,16 +109,16 @@ public class TopDown2D_TestPlayer : MonoBehaviour
         Texture2D texture = new Texture2D(64, 64);
         Color[] pixels = new Color[64 * 64];
         
-        // ³z©ú­I´º
+        // é€æ˜èƒŒæ™¯ 
         for (int i = 0; i < pixels.Length; i++)
             pixels[i] = Color.clear;
         
-        // ¥ª²´
+        // å·¦çœ¼
         DrawEye(pixels, 64, 20, 45, 4, Color.white, Color.black);
-        // ¥k²´
+        // å³çœ¼
         DrawEye(pixels, 64, 44, 45, 4, Color.white, Color.black);
         
-        // ·L¯º
+        // å¾®ç¬‘
         DrawSmile(pixels, 64);
         
         texture.SetPixels(pixels);
@@ -128,7 +128,7 @@ public class TopDown2D_TestPlayer : MonoBehaviour
     
     void DrawEye(Color[] pixels, int texSize, int centerX, int centerY, int radius, Color eyeColor, Color pupilColor)
     {
-        // µe²´¥Õ
+        // ç•«çœ¼ç™½
         for (int x = centerX - radius; x <= centerX + radius; x++)
         {
             for (int y = centerY - radius; y <= centerY + radius; y++)
@@ -144,7 +144,7 @@ public class TopDown2D_TestPlayer : MonoBehaviour
             }
         }
         
-        // µeÀû¤Õ
+        // ç•«ç³å­”
         int pupilRadius = radius / 2;
         for (int x = centerX - pupilRadius; x <= centerX + pupilRadius; x++)
         {
@@ -164,7 +164,7 @@ public class TopDown2D_TestPlayer : MonoBehaviour
     
     void DrawSmile(Color[] pixels, int texSize)
     {
-        // Â²³æªº·L¯º©·½u
+        // ç°¡å–®çš„å¾®ç¬‘å¼§ç·š
         for (int x = 25; x <= 39; x++)
         {
             int y = 25 + (int)(3 * Mathf.Sin((x - 25) * Mathf.PI / 14));
@@ -183,7 +183,7 @@ public class TopDown2D_TestPlayer : MonoBehaviour
         if (showDebugInfo && Input.GetKeyDown(KeyCode.G))
         {
             showDebugInfo = !showDebugInfo;
-            Debug.Log($"Debug¼Ò¦¡: {showDebugInfo}");
+            Debug.Log($"Debugæ¨¡å¼: {showDebugInfo}");
         }
     }
     
@@ -192,28 +192,28 @@ public class TopDown2D_TestPlayer : MonoBehaviour
         movement.x = Input.GetAxisRaw("Horizontal");
         movement.y = Input.GetAxisRaw("Vertical");
         
-        // «öÁä¥\¯à
+        // æŒ‰éµåŠŸèƒ½
         if (Input.GetKeyDown(KeyCode.H) && playerHealth != null)
         {
             playerHealth.Heal(20);
-            Debug.Log("ª±®aªvÀø¡I");
+            Debug.Log("ç©å®¶æ²»ç™‚ï¼");
         }
         
         if (Input.GetKeyDown(KeyCode.T) && playerHealth != null)
         {
-            Debug.Log($"ª±®aª¬ºA - ¥Í©R­È: {playerHealth.GetCurrentHealth()}/{playerHealth.GetMaxHealth()}");
+            Debug.Log($"ç©å®¶ç‹€æ…‹ - ç”Ÿå‘½å€¼: {playerHealth.GetCurrentHealth()}/{playerHealth.GetMaxHealth()}");
         }
         
         if (Input.GetKeyDown(KeyCode.R))
         {
             transform.position = Vector3.zero;
-            Debug.Log("ª±®a¦ì¸m­«¸m¡I");
+            Debug.Log("ç©å®¶ä½ç½®é‡ç½®ï¼");
         }
         
         if (Input.GetKeyDown(KeyCode.G))
         {
             showDebugInfo = !showDebugInfo;
-            Debug.Log($"Debug¼Ò¦¡: {showDebugInfo}");
+            Debug.Log($"Debugæ¨¡å¼: {showDebugInfo}");
         }
     }
     
@@ -229,9 +229,9 @@ public class TopDown2D_TestPlayer : MonoBehaviour
     {
         if (showDebugInfo && playerHealth != null)
         {
-            GUI.Label(new Rect(10, 10, 200, 20), $"ª±®a¥Í©R­È: {playerHealth.GetCurrentHealth()}/{playerHealth.GetMaxHealth()}");
-            GUI.Label(new Rect(10, 30, 200, 20), $"¦ì¸m: {transform.position}");
-            GUI.Label(new Rect(10, 50, 200, 20), "±±¨î: WASD²¾°Ê, HªvÀø, Tª¬ºA, R­«¸m, G¤Á´«Debug");
+            GUI.Label(new Rect(10, 10, 200, 20), $"ç©å®¶ç”Ÿå‘½å€¼: {playerHealth.GetCurrentHealth()}/{playerHealth.GetMaxHealth()}");
+            GUI.Label(new Rect(10, 30, 200, 20), $"ä½ç½®: {transform.position}");
+            GUI.Label(new Rect(10, 50, 200, 20), "æ§åˆ¶: WASDç§»å‹•, Hæ²»ç™‚, Tç‹€æ…‹, Ré‡ç½®, Gåˆ‡æ›Debug");
         }
     }
 }

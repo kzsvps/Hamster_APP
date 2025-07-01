@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class TopDown2D_MonsterAI : MonoBehaviour
 {
-    [Header("AI³]©w")]
+    [Header("AIè¨­å®š")]
     public Transform player;
     public float detectionRange = 5f;
     public float attackRange = 1.5f;
@@ -11,7 +11,7 @@ public class TopDown2D_MonsterAI : MonoBehaviour
     public float attackCooldown = 1f;
     public int attackDamage = 10;
     
-    [Header("µøÄ±³]©w")]
+    [Header("è¦–è¦ºè¨­å®š")]
     public bool showDebugRanges = true;
     
     private enum MonsterState
@@ -28,7 +28,7 @@ public class TopDown2D_MonsterAI : MonoBehaviour
     private float lastAttackTime;
     private Rigidbody2D rb;
     
-    // µøÄ±²Õ¥ó
+    // è¦–è¦ºçµ„ä»¶
     private SpriteRenderer mainSprite;
     private SpriteRenderer faceSprite;
     private GameObject faceObject;
@@ -48,26 +48,26 @@ public class TopDown2D_MonsterAI : MonoBehaviour
         startPosition = transform.position;
         SetNewPatrolTarget();
         
-        // ³Ğ«Ø©Çª«µøÄ±®ÄªG
+        // å‰µå»ºæ€ªç‰©è¦–è¦ºæ•ˆæœ
         CreateMonsterVisuals();
         
-        Debug.Log("©Çª«ªì©l¤Æ§¹¦¨¡I");
+        Debug.Log("æ€ªç‰©åˆå§‹åŒ–å®Œæˆï¼");
     }
     
     void CreateMonsterVisuals()
     {
-        // ¥DÅé (¬õ¦â¤è§Î±a¦y¨¤)
+        // ä¸»é«” (ç´…è‰²æ–¹å½¢å¸¶å°–è§’)
         mainSprite = GetComponent<SpriteRenderer>();
         if (mainSprite == null)
             mainSprite = gameObject.AddComponent<SpriteRenderer>();
             
-        // ³Ğ«Ø©Çª«¥DÅé
+        // å‰µå»ºæ€ªç‰©ä¸»é«”
         Texture2D bodyTexture = CreateMonsterBodyTexture();
         Sprite bodySprite = Sprite.Create(bodyTexture, new Rect(0, 0, 64, 64), new Vector2(0.5f, 0.5f), 64);
         mainSprite.sprite = bodySprite;
         mainSprite.sortingOrder = 1;
         
-        // ³Ğ«Ø©Çª«Áy³¡
+        // å‰µå»ºæ€ªç‰©è‡‰éƒ¨
         faceObject = new GameObject("MonsterFace");
         faceObject.transform.SetParent(transform);
         faceObject.transform.localPosition = Vector3.zero;
@@ -78,7 +78,7 @@ public class TopDown2D_MonsterAI : MonoBehaviour
         faceSprite.sprite = faceSpriteAsset;
         faceSprite.sortingOrder = 2;
         
-        // ³Ğ«Ø¨¤
+        // å‰µå»ºè§’
         hornObject = new GameObject("MonsterHorns");
         hornObject.transform.SetParent(transform);
         hornObject.transform.localPosition = new Vector3(0, 0.2f, 0);
@@ -89,7 +89,7 @@ public class TopDown2D_MonsterAI : MonoBehaviour
         hornSprite.sprite = hornSpriteAsset;
         hornSprite.sortingOrder = 3;
         
-        // ²K¥[¸I¼²Åé
+        // æ·»åŠ ç¢°æ’é«”
         BoxCollider2D collider = GetComponent<BoxCollider2D>();
         if (collider == null)
         {
@@ -103,20 +103,20 @@ public class TopDown2D_MonsterAI : MonoBehaviour
         Texture2D texture = new Texture2D(64, 64);
         Color[] pixels = new Color[64 * 64];
         
-        // ³Ğ«Ø±a¦y¨¤ªº¤è§Î
+        // å‰µå»ºå¸¶å°–è§’çš„æ–¹å½¢
         for (int x = 0; x < 64; x++)
         {
             for (int y = 0; y < 64; y++)
             {
                 Color pixelColor = Color.clear;
                 
-                // ¥D­n¤è§Î°Ï°ì
+                // ä¸»è¦æ–¹å½¢å€åŸŸ
                 if (x >= 8 && x < 56 && y >= 8 && y < 56)
                 {
                     pixelColor = Color.red;
                 }
                 
-                // ²K¥[Ãä®Ø
+                // æ·»åŠ é‚Šæ¡†
                 if ((x >= 6 && x < 58 && y >= 6 && y < 58) && 
                     !(x >= 8 && x < 56 && y >= 8 && y < 56))
                 {
@@ -137,15 +137,15 @@ public class TopDown2D_MonsterAI : MonoBehaviour
         Texture2D texture = new Texture2D(64, 64);
         Color[] pixels = new Color[64 * 64];
         
-        // ³z©ú­I´º
+        // é€æ˜èƒŒæ™¯
         for (int i = 0; i < pixels.Length; i++)
             pixels[i] = Color.clear;
         
-        // ¨¸´cªº²´·ú (¬õ¦â)
+        // é‚ªæƒ¡çš„çœ¼ç› (ç´…è‰²)
         DrawEye(pixels, 64, 20, 45, 3, Color.yellow, Color.red);
         DrawEye(pixels, 64, 44, 45, 3, Color.yellow, Color.red);
         
-        // ¨¸´cªº¼L¤Ú
+        // é‚ªæƒ¡çš„å˜´å·´
         DrawEvilMouth(pixels, 64);
         
         texture.SetPixels(pixels);
@@ -158,13 +158,13 @@ public class TopDown2D_MonsterAI : MonoBehaviour
         Texture2D texture = new Texture2D(64, 32);
         Color[] pixels = new Color[64 * 32];
         
-        // ³z©ú­I´º
+        // é€æ˜èƒŒæ™¯
         for (int i = 0; i < pixels.Length; i++)
             pixels[i] = Color.clear;
         
-        // ¥ª¨¤
+        // å·¦è§’
         DrawHorn(pixels, 64, 32, 16, 16, Color.black);
-        // ¥k¨¤
+        // å³è§’
         DrawHorn(pixels, 64, 32, 48, 16, Color.black);
         
         texture.SetPixels(pixels);
@@ -174,7 +174,7 @@ public class TopDown2D_MonsterAI : MonoBehaviour
     
     void DrawEye(Color[] pixels, int texSize, int centerX, int centerY, int radius, Color eyeColor, Color pupilColor)
     {
-        // µe²´¥Õ
+        // ç•«çœ¼ç™½
         for (int x = centerX - radius; x <= centerX + radius; x++)
         {
             for (int y = centerY - radius; y <= centerY + radius; y++)
@@ -190,7 +190,7 @@ public class TopDown2D_MonsterAI : MonoBehaviour
             }
         }
         
-        // µeÀû¤Õ
+        // ç•«ç³å­”
         int pupilRadius = radius / 2;
         for (int x = centerX - pupilRadius; x <= centerX + pupilRadius; x++)
         {
@@ -210,7 +210,7 @@ public class TopDown2D_MonsterAI : MonoBehaviour
     
     void DrawEvilMouth(Color[] pixels, int texSize)
     {
-        // ¨¸´cªº·L¯º
+        // é‚ªæƒ¡çš„å¾®ç¬‘
         for (int x = 25; x <= 39; x++)
         {
             int y = 30 - (int)(2 * Mathf.Sin((x - 25) * Mathf.PI / 14));
@@ -221,7 +221,7 @@ public class TopDown2D_MonsterAI : MonoBehaviour
             }
         }
         
-        // ¤ú¾¦
+        // ç‰™é½’
         for (int i = 0; i < 3; i++)
         {
             int x = 28 + i * 4;
@@ -237,7 +237,7 @@ public class TopDown2D_MonsterAI : MonoBehaviour
     
     void DrawHorn(Color[] pixels, int texWidth, int texHeight, int baseX, int baseY, Color color)
     {
-        // µe¤T¨¤§Îªº¨¤
+        // ç•«ä¸‰è§’å½¢çš„è§’
         for (int y = 0; y < 12; y++)
         {
             int width = 6 - y / 2;
@@ -264,15 +264,15 @@ public class TopDown2D_MonsterAI : MonoBehaviour
         UpdateAI();
         UpdateVisuals();
         
-        // Debug«öÁä
+        // DebugæŒ‰éµ
         if (Input.GetKeyDown(KeyCode.M))
         {
-            Debug.Log($"©Çª«ª¬ºA: {currentState}, ¶ZÂ÷ª±®a: {Vector2.Distance(transform.position, player.position):F2}");
+            Debug.Log($"æ€ªç‰©ç‹€æ…‹: {currentState}, è·é›¢ç©å®¶: {Vector2.Distance(transform.position, player.position):F2}");
         }
         
         if (Input.GetKeyDown(KeyCode.K))
         {
-            Debug.Log("´ú¸Õ©Çª«¨ü¶Ë¡I");
+            Debug.Log("æ¸¬è©¦æ€ªç‰©å—å‚·ï¼");
         }
     }
     
@@ -326,7 +326,7 @@ public class TopDown2D_MonsterAI : MonoBehaviour
     
     void UpdateVisuals()
     {
-        // ®Ú¾Úª¬ºA§ïÅÜÃC¦â
+        // æ ¹æ“šç‹€æ…‹æ”¹è®Šé¡è‰²
         Color bodyColor = Color.red;
         switch (currentState)
         {
@@ -337,7 +337,7 @@ public class TopDown2D_MonsterAI : MonoBehaviour
                 bodyColor = Color.magenta;
                 break;
             case MonsterState.Attack:
-                bodyColor = new Color(1f, 0.5f, 0f); // ¾í¦â
+                bodyColor = new Color(1f, 0.5f, 0f); // æ©™è‰²
                 break;
             case MonsterState.Return:
                 bodyColor = Color.yellow;
@@ -353,7 +353,7 @@ public class TopDown2D_MonsterAI : MonoBehaviour
     void ChangeState(MonsterState newState)
     {
         currentState = newState;
-        Debug.Log($"©Çª«ª¬ºA§ïÅÜ¬°: {currentState}");
+        Debug.Log($"æ€ªç‰©ç‹€æ…‹æ”¹è®Šç‚º: {currentState}");
     }
     
     void Patrol()
@@ -381,7 +381,7 @@ public class TopDown2D_MonsterAI : MonoBehaviour
             if (playerHealth != null)
             {
                 playerHealth.TakeDamage(attackDamage);
-                Debug.Log($"©Çª«§ğÀ»ª±®a³y¦¨ {attackDamage} ÂI¶Ë®`¡I");
+                Debug.Log($"æ€ªç‰©æ”»æ“Šç©å®¶é€ æˆ {attackDamage} é»å‚·å®³ï¼");
             }
             lastAttackTime = Time.time;
         }
@@ -403,19 +403,19 @@ public class TopDown2D_MonsterAI : MonoBehaviour
     {
         if (!showDebugRanges) return;
         
-        // °»´ú½d³ò
+        // åµæ¸¬ç¯„åœ
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
         
-        // §ğÀ»½d³ò
+        // æ”»æ“Šç¯„åœ
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
         
-        // ¨µÅŞ½d³ò
+        // å·¡é‚ç¯„åœ
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(startPosition, patrolRadius);
         
-        // ¨µÅŞ¥Ø¼Ğ
+        // å·¡é‚ç›®æ¨™ 
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(patrolTarget, 0.3f);
     }
