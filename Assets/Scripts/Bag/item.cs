@@ -7,7 +7,7 @@ public class item : ScriptableObject
 {
     public string itemName;
     public Sprite itemImage;
-    public TMP_Text itemHeld;
+    public int itemHeld;
     [TextArea]
     public string itemInfo;
     public bool equip;
