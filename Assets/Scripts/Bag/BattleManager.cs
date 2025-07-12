@@ -5,7 +5,7 @@ public class BattleManager : MonoBehaviour
 {
     public RewardManager rewardManager;
     public item redPotion;
- public inventory playerInventory;
+    public inventory playerInventory;
 
     void Start()
     {
@@ -16,7 +16,5 @@ public class BattleManager : MonoBehaviour
     {
         List<item> rewards = new List<item>() { redPotion };
         rewardManager.ShowRewards(rewards);
-        InventoryUtility.AddItemToBag(redPotion, playerInventory);
-    
     }
 }
