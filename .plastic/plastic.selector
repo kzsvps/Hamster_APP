@@ -1,0 +1,4 @@
+repository "Hamster/loginSystem@33263027545005@cloud"
+  path "/"
+    br "/main"
+    co "/main"
